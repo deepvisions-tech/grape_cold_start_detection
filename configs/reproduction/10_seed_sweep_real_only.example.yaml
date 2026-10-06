@@ -1,0 +1,20 @@
+# Real-only(k), 15 matched training seeds; no AdaBN (Manuscript Section 5.3).
+# Set 04's saved split to R_k + V_real and initial weights to yolo26x.pt.
+# Set 06's TEST_TUNE_SPLIT_DIR to the same fixed real validation split.
+# Run: grape-detector-seed-sweep --config configs/reproduction/10_seed_sweep_real_only.yaml
+
+BASE_TRAIN_CONFIG_PATH: configs/reproduction/04_real_label_train.yaml
+BASE_TEST_CONFIG_PATH: configs/reproduction/06_evaluate_curated_mix_no_adabn.yaml
+SEED_SWEEP_MODE: full
+SEED_SWEEP_OUTPUT_DIR: /path/to/seed_sweeps
+# Change both prefixes for each real-label budget.
+SEED_SWEEP_TRAIN_RUN_NAME_PREFIX: grape_real_only_k214_15_seed
+SEED_SWEEP_TEST_RUN_NAME_PREFIX: grape_real_only_k214_15_seed
+SEED_SWEEP_TRAIN_SEEDS: [111, 222, 333, 444, 555, 666, 777, 888, 999, 1111, 1424, 1679, 2289, 8935, 9674]
+SEED_SWEEP_MODEL_WEIGHT_SOURCE: best
+SEED_SWEEP_CLEAN_RUN_WEIGHTS_AFTER_EXPORT: false
+SEED_SWEEP_REUSE_SHARED_SPLIT: true
+SEED_SWEEP_SHARED_SPLIT_DIR:
+SEED_SWEEP_SHARED_YAML_PATH:
+SEED_SWEEP_DEVICE: "0"
+SEED_SWEEP_CONTINUE_ON_ERROR: false

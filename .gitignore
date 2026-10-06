@@ -1,0 +1,38 @@
+# Local configurations: commit sanitized examples only
+configs/detection/*.yaml
+!configs/detection/*.example.yaml
+configs/reproduction/*.yaml
+!configs/reproduction/*.example.yaml
+*.local.yaml
+
+# Models, datasets, and generated outputs
+*.pt
+*.pth
+*.onnx
+*.engine
+*.torchscript
+*.log
+datasets/
+runs/
+test_runs/
+seed_sweeps/
+models_final/
+outputs/
+results/
+wandb/
+
+# Build outputs
+build/
+dist/
+*.egg-info/
+
+# Python and editors
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+.idea/
+.vscode/
+.DS_Store

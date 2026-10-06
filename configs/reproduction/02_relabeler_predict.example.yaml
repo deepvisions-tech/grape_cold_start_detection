@@ -1,0 +1,47 @@
+# YOLO relabeler r_phi -- proposal generation on the second generation batch.
+# Manuscript Section 4.3 and Supplementary Table S5.1.
+#
+# Writes a YOLO-format dataset of proposed boxes. These are proposals only:
+# every image was opened in labelImg and verified by a human annotator before
+# entering the synthetic dataset.
+#
+# Run with:
+#   grape-detector-predict --config configs/reproduction/02_relabeler_predict.yaml
+#
+# Output layout under PREDICT_OUTPUT_DIR:
+#   images/
+#   labels/               (with labels/classes.txt)
+#   visualizations/
+#   summary.json
+#   per_image_results.json
+
+PREDICT_MODEL_PATH: /path/to/relabeler_best.pt
+PREDICT_IMAGE_DIR: /path/to/second_generation_batch
+PREDICT_OUTPUT_DIR: /path/to/relabeled_yolo_dataset
+
+PREDICT_DEVICE: "0"
+PREDICT_IMGSZ: 960
+# Production confidence threshold of the reported relabeler.
+PREDICT_CONF: 0.40
+# Inactive in YOLO26 default end-to-end inference (no NMS).
+PREDICT_IOU: 0.7
+PREDICT_MAX_DET: 300
+PREDICT_BATCH: 32
+PREDICT_FP16: true
+PREDICT_SAVE_CONF: false
+PREDICT_RESET_OUTPUT_DIR: false
+PREDICT_DISABLE_TQDM: false
+
+PREDICT_CLASSES:
+
+# The reported relabeling pass used whole-image inference.
+PREDICT_TILED_INFER_ENABLED: false
+
+# PREDICT_CONF above is the reported value, so the validation-tuned threshold
+# is not re-read here.
+PREDICT_USE_F1_OPTIMIZED_CONF: false
+PREDICT_AUTO_TUNE_F1_CONF_IF_MISSING: false
+PREDICT_OVERWRITE_F1_OPTIMIZED_CONF: false
+
+# AdaBN was not used for relabeling.
+PREDICT_ADABN_ENABLED: false

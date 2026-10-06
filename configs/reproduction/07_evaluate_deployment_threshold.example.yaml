@@ -1,0 +1,108 @@
+# Deployment-prevalence threshold calibration and evaluation.
+# Manuscript Section 5.1.
+#
+# The deployment threshold is the minimum confidence at which no more than 25
+# tiles of B_dep -- a single common set of 5,000 symptom-free real background
+# tiles, 1,000 per date from 18-26 August 2025, excluding 27 August -- contain
+# one or more detections. The tuning set and criterion are identical across
+# every scenario; only the resulting threshold differs per trained detector.
+# The selected threshold is applied unchanged before source-frame aggregation.
+#
+# Final protocol: the retained deployment run records use 5,000 background
+# tiles, at most 25 positive tiles, and post-AdaBN calibration for cold start.
+# Archived AP and operating-point sources are separately indexed in the
+# anonymous numeric release.
+#
+# The deployment-prevalence composition was reported for a prespecified
+# seven-configuration subset: the cold-start scenario and the real-only and
+# pretrain+fine-tune scenarios at k in {10, 100, 214}.
+#
+# Run with:
+#   grape-detector-evaluate --config configs/reproduction/07_evaluate_deployment_threshold.yaml
+
+names:
+  0: magnesium deficiency
+
+EVAL_IOU_THRESHOLD: 0.5
+TEST_EVAL_CLASSES:
+TEST_PRED_CLASS_FOR_SINGLE_EVAL: 0
+TARGET_GT_CLASS_FOR_SINGLE_EVAL: 0
+
+# Paths. Replace with local paths before running.
+TEST_MODEL_PATH: /path/to/model_best.pt
+# The entire test set for one date, with no negative subsampling.
+TEST_IMAGE_DIR: /path/to/real_test_full/images
+TEST_LABEL_DIR: /path/to/real_test_full/labels
+TEST_OUTPUT_DIR: /path/to/eval_outputs_deployment
+TEST_RUN_NAME: grape_eval_deployment
+
+# Inference
+TEST_IMGSZ: 960
+TEST_CONF: 0.4
+# Inactive in YOLO26 default end-to-end inference (no NMS).
+TEST_IOU: 0.7
+TEST_MAX_DET: 300
+# Paper-reported AP: COCOeval bbox, 101 recall points, IoU 0.50:0.95,
+# area=all, maxDets=100. TEST_MAX_DET remains 300 for prediction export;
+# COCOeval applies its score-sorted maxDets=100 truncation for AP.
+TEST_AP_EVAL_CONF: 0.001
+TEST_COCO_EVAL_ENABLED: true
+TEST_COCO_MAX_DETS: 100
+TEST_COCO_SUBSET_STRICT: true
+TEST_COCO_SUBSET_IMAGE_DIRS: {}
+TEST_DEVICE: "0"
+TEST_LIMIT_VISIBLE_DEVICE: false
+TEST_FP16: true
+TEST_BATCH: 32
+TEST_SAVE_JSONL: true
+TEST_SAVE_VISUALIZATIONS: false
+TEST_RESET_OUTPUT_DIR: true
+
+TEST_GAMMA_CORRECTION_ENABLED: false
+TEST_TILED_INFER_ENABLED: false
+
+# AdaBN. Set to true only for the cold-start configuration, using the same
+# settings as 05_evaluate_curated_mix_adabn. When enabled, AdaBN runs before
+# the deployment tuning below and the same adapted model instance is reused.
+TEST_ADABN_ENABLED: false
+TEST_ADABN_IMAGE_DIR:
+TEST_ADABN_BATCH:
+TEST_ADABN_IMGSZ:
+# Standalone run: set this to the checkpoint's training seed.
+# For a seed sweep, use train_seed; the sweep resolves it before evaluation.
+TEST_ADABN_SAMPLE_SEED: 111
+TEST_ADABN_EPOCHS: 1
+TEST_ADABN_MAX_IMAGES: 128
+TEST_ADABN_MAX_STAGE: 1
+TEST_ADABN_RESET_STATS: false
+TEST_ADABN_MOMENTUM: null
+TEST_ADABN_FP16: true
+
+# The deployment threshold replaces the curated-mix F1 operating point.
+TEST_USE_F1_OPTIMIZED_CONF: false
+TEST_AUTO_TUNE_F1_CONF_IF_MISSING: false
+
+# Deployment-threshold calibration on B_dep.
+TEST_TUNE_DEPLOYMENT_THRESHOLD: true
+TEST_USE_DEPLOYMENT_THRESHOLD: true
+# Recalibrate for the current checkpoint and AdaBN state.
+TEST_OVERWRITE_DEPLOYMENT_THRESHOLD: true
+# B_dep: 5,000 symptom-free real background tiles.
+TEST_DEPLOYMENT_BACKGROUND_IMAGE_DIR: /path/to/B_dep_5000_tiles
+# At most 25 calibration tiles may carry one or more detections.
+TEST_DEPLOYMENT_MAX_FP: 25
+# true counts a tile with one or more detections as a single false positive,
+# which is the tile-level criterion the manuscript specifies.
+TEST_DEPLOYMENT_COUNT_FP_BY_IMAGE: true
+TEST_DEPLOYMENT_TUNE_CLASSES:
+TEST_DEPLOYMENT_TUNE_IMGSZ: 960
+TEST_DEPLOYMENT_TUNE_PRED_IOU: 0.7
+TEST_DEPLOYMENT_TUNE_MAX_DET: 300
+TEST_DEPLOYMENT_TUNE_DEVICE:
+TEST_DEPLOYMENT_TUNE_BATCH: 32
+TEST_DEPLOYMENT_TUNE_FP16: true
+TEST_DEPLOYMENT_TUNE_TILED_INFER_ENABLED: false
+TEST_DEPLOYMENT_TUNE_DISABLE_TQDM: false
+TEST_DEPLOYMENT_TUNE_CONF_MIN: 0.01
+TEST_DEPLOYMENT_TUNE_CONF_MAX: 0.99
+TEST_DEPLOYMENT_TUNE_CONF_STEP: 0.01

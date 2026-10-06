@@ -1,0 +1,63 @@
+# 15-seed repetition for cold-start synthetic-only detection with AdaBN.
+# Manuscript Section 5.3: every scenario is repeated 15 times with different
+# random seeds, and the mean and sample standard deviation across the 15 runs
+# are reported.
+#
+# Uses synthetic training/validation and the reported AdaBN evaluation.
+# For real-only use 10_seed_sweep_real_only.example.yaml.
+# For generation-source comparisons use 11_seed_sweep_generation_ablation.example.yaml.
+#
+# Run with:
+#   grape-detector-seed-sweep --config configs/reproduction/08_seed_sweep_15_seeds.yaml
+
+BASE_TRAIN_CONFIG_PATH: configs/reproduction/03_synthetic_only_train.yaml
+BASE_TEST_CONFIG_PATH: configs/reproduction/05_evaluate_curated_mix_adabn.yaml
+
+SEED_SWEEP_MODE: full
+SEED_SWEEP_OUTPUT_DIR: /path/to/seed_sweeps
+SEED_SWEEP_TRAIN_RUN_NAME_PREFIX: grape_synthetic_only_15_seed
+SEED_SWEEP_TEST_RUN_NAME_PREFIX: grape_synthetic_only_15_seed
+
+# The 15 matched training seeds used for every ordinary repetition reported in
+# the manuscript. The pretrain+fine-tune runs reuse these same seeds one to one
+# (see 09_seed_sweep_pretrain_finetune.example.yaml).
+#
+# The low-label subset-resampling robustness experiment instead uses training
+# seeds 1679, 2289, and 8935 crossed with data-subset seeds 409, 1824, 3657,
+# 4012, and 4506.
+SEED_SWEEP_TRAIN_SEEDS:
+  - 111
+  - 222
+  - 333
+  - 444
+  - 555
+  - 666
+  - 777
+  - 888
+  - 999
+  - 1111
+  - 1424
+  - 1679
+  - 2289
+  - 8935
+  - 9674
+
+SEED_SWEEP_MODEL_WEIGHT_SOURCE: best
+SEED_SWEEP_CLEAN_RUN_WEIGHTS_AFTER_EXPORT: false
+
+# All 15 seeds share one split so that only training stochasticity varies.
+SEED_SWEEP_REUSE_SHARED_SPLIT: true
+SEED_SWEEP_SHARED_SPLIT_DIR:
+SEED_SWEEP_SHARED_YAML_PATH:
+
+# Pins the whole sweep process to one physical GPU and remaps the inner
+# train/test to logical device 0.
+SEED_SWEEP_DEVICE: "0"
+
+# Not used in this mode.
+SEED_SWEEP_FINETUNE_RUN_DIR:
+
+SEED_SWEEP_CONTINUE_ON_ERROR: false
+
+# Use the matched training seed for each model's AdaBN background sample.
+TEST_ADABN_SAMPLE_SEED: train_seed

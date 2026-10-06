@@ -1,0 +1,60 @@
+# 15-seed repetition for the synthetic-pretrain + low-label-fine-tune scenario.
+# Manuscript Section 5.2, paired design.
+#
+# At each budget k, the real-only and pretrain+fine-tune scenarios are paired:
+# both use the same R_k training images and the same fixed V_real, and the 15
+# training seeds are matched one to one, with the fine-tune run at a given seed
+# starting from the synthetic checkpoint trained with that same seed.
+#
+# `finetune` mode supplies that matched initialization: for training seed S it
+# loads <SEED_SWEEP_FINETUNE_RUN_DIR>/models_final/<prefix>S_best.pt as the
+# initial weights, overriding DETECTION_MODEL_PATH of the base train config.
+#
+# Prerequisite: run 08_seed_sweep_15_seeds.yaml with
+# BASE_TRAIN_CONFIG_PATH = 03_synthetic_only_train.yaml first, then point
+# SEED_SWEEP_FINETUNE_RUN_DIR at that completed sweep.
+#
+# Run with:
+#   grape-detector-seed-sweep --config configs/reproduction/09_seed_sweep_pretrain_finetune.yaml
+
+BASE_TRAIN_CONFIG_PATH: configs/reproduction/04_real_label_train.yaml
+BASE_TEST_CONFIG_PATH: configs/reproduction/06_evaluate_curated_mix_no_adabn.yaml
+
+SEED_SWEEP_MODE: finetune
+SEED_SWEEP_OUTPUT_DIR: /path/to/seed_sweeps
+SEED_SWEEP_TRAIN_RUN_NAME_PREFIX: grape_pretrain_finetune_k214_15_seed
+SEED_SWEEP_TEST_RUN_NAME_PREFIX: grape_pretrain_finetune_k214_15_seed
+
+# The completed synthetic-only sweep whose per-seed checkpoints seed this run.
+SEED_SWEEP_FINETUNE_RUN_DIR: /path/to/seed_sweeps/grape_synthetic_only_15_seed
+
+# Matched one to one with 08_seed_sweep_15_seeds.example.yaml.
+SEED_SWEEP_TRAIN_SEEDS:
+  - 111
+  - 222
+  - 333
+  - 444
+  - 555
+  - 666
+  - 777
+  - 888
+  - 999
+  - 1111
+  - 1424
+  - 1679
+  - 2289
+  - 8935
+  - 9674
+
+SEED_SWEEP_MODEL_WEIGHT_SOURCE: best
+SEED_SWEEP_CLEAN_RUN_WEIGHTS_AFTER_EXPORT: false
+
+# R_k is fixed across all 15 seeds at a given k and identical to the paired
+# real-only run.
+SEED_SWEEP_REUSE_SHARED_SPLIT: true
+SEED_SWEEP_SHARED_SPLIT_DIR:
+SEED_SWEEP_SHARED_YAML_PATH:
+
+SEED_SWEEP_DEVICE: "0"
+
+SEED_SWEEP_CONTINUE_ON_ERROR: false

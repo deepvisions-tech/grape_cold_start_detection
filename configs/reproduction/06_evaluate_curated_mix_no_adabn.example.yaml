@@ -1,0 +1,75 @@
+# Held-out real evaluation without AdaBN.
+# Manuscript Section 5.1 (evaluation protocol).
+#
+# Used for:
+#   - the no-AdaBN variant of the AdaBN ablation (Section 5.3), paired against
+#     05_evaluate_curated_mix_adabn at the same 15 training seeds;
+#   - the generation-source ablation (Section 5.3), which the manuscript
+#     specifies without AdaBN;
+#   - every real-label scenario, which never used AdaBN.
+#
+# Identical to 05_evaluate_curated_mix_adabn except that AdaBN is disabled and
+# the validation split used for threshold tuning is scenario-dependent.
+#
+# Run with:
+#   grape-detector-evaluate --config configs/reproduction/06_evaluate_curated_mix_no_adabn.yaml
+
+names:
+  0: magnesium deficiency
+
+EVAL_IOU_THRESHOLD: 0.5
+TEST_EVAL_CLASSES:
+TEST_PRED_CLASS_FOR_SINGLE_EVAL: 0
+TARGET_GT_CLASS_FOR_SINGLE_EVAL: 0
+
+# Paths. Replace with local paths before running.
+TEST_MODEL_PATH: /path/to/model_best.pt
+TEST_IMAGE_DIR: /path/to/real_test/images
+TEST_LABEL_DIR: /path/to/real_test/labels
+TEST_OUTPUT_DIR: /path/to/eval_outputs
+TEST_RUN_NAME: grape_eval_no_adabn
+
+# Inference
+TEST_IMGSZ: 960
+TEST_CONF: 0.4
+# Inactive in YOLO26 default end-to-end inference (no NMS).
+TEST_IOU: 0.7
+TEST_MAX_DET: 300
+# Paper-reported AP: COCOeval bbox, 101 recall points, IoU 0.50:0.95,
+# area=all, maxDets=100. TEST_MAX_DET remains 300 for prediction export;
+# COCOeval applies its score-sorted maxDets=100 truncation for AP.
+TEST_AP_EVAL_CONF: 0.001
+TEST_COCO_EVAL_ENABLED: true
+TEST_COCO_MAX_DETS: 100
+TEST_COCO_SUBSET_STRICT: true
+TEST_COCO_SUBSET_IMAGE_DIRS: {}
+TEST_DEVICE: "0"
+TEST_LIMIT_VISIBLE_DEVICE: false
+TEST_FP16: true
+TEST_BATCH: 32
+TEST_SAVE_JSONL: true
+TEST_SAVE_VISUALIZATIONS: true
+TEST_RESET_OUTPUT_DIR: true
+
+TEST_GAMMA_CORRECTION_ENABLED: false
+TEST_TILED_INFER_ENABLED: false
+
+TEST_ADABN_ENABLED: false
+
+# Scenario-appropriate validation set: V_syn for the synthetic-only arms of the
+# AdaBN and generation ablations, V_real for every real-label scenario.
+TEST_USE_F1_OPTIMIZED_CONF: true
+TEST_REQUIRE_TUNED_CONF: true
+TEST_F1_OPTIMIZED_CONF_OFFSET: 0
+# Recompute on the unadapted checkpoint to avoid reusing overwritten sidecars.
+TEST_OVERWRITE_F1_OPTIMIZED_CONF: true
+TEST_AUTO_TUNE_F1_CONF_IF_MISSING: true
+TEST_TUNE_SPLIT_DIR: /path/to/scenario_validation_split
+TEST_TUNE_SPLIT: val
+TEST_TUNE_TARGET_GT_CLASS: 0
+TEST_TUNE_CONF_MIN: 0.01
+TEST_TUNE_CONF_MAX: 0.99
+TEST_TUNE_CONF_STEP: 0.01
+
+TEST_TUNE_DEPLOYMENT_THRESHOLD: false
+TEST_USE_DEPLOYMENT_THRESHOLD: false

@@ -1,0 +1,117 @@
+path: /path/to/yolo_dataset
+train: images/train
+val: images/val
+test: images/test
+
+names:
+  0: magnesium deficiency
+
+EVAL_IOU_THRESHOLD: 0.5
+TEST_EVAL_CLASSES:
+TEST_PRED_CLASS_FOR_SINGLE_EVAL: 0
+TARGET_GT_CLASS_FOR_SINGLE_EVAL: 0
+
+# Evaluation input/output
+TEST_MODEL_PATH: /path/to/model_best.pt
+TEST_IMAGE_DIR: /path/to/images/test
+# If supplied, every test image must have a label file; negatives use empty files.
+# Omit only for prediction without GT metrics. Missing files stop evaluation.
+TEST_LABEL_DIR: /path/to/labels/test
+TEST_OUTPUT_DIR: /path/to/eval_outputs
+TEST_RUN_NAME: grape_detection_eval
+
+# Inference
+TEST_IMGSZ: 960
+TEST_CONF: 0.4
+TEST_IOU: 0.7
+TEST_MAX_DET: 300
+# Keep this low enough to retain the score-ranked detections used for AP.
+TEST_AP_EVAL_CONF: 0.001
+# Canonical COCO bbox AP (101 recall points, IoU 0.50:0.95, area=all).
+TEST_COCO_EVAL_ENABLED: false
+TEST_COCO_MAX_DETS: 100
+TEST_COCO_SUBSET_STRICT: true
+# Optional named image subsets evaluated from the same full-set predictions.
+# Example: {curated: /path/to/curated/images}
+TEST_COCO_SUBSET_IMAGE_DIRS: {}
+TEST_DEVICE: "0"
+TEST_LIMIT_VISIBLE_DEVICE: false
+TEST_FP16: true
+TEST_BATCH: 16
+TEST_SAVE_JSONL: true
+# Write summary.json and wrap per_image_results.json as {"rows": [...]},
+# with an auto-labeling-compatible per-image `performance` block.
+# A valid TEST_LABEL_DIR is required when this is true.
+TEST_SAVE_AUTO_LABELING_COMPATIBLE_RESULTS: false
+# Save annotated evaluation images under TP/, FP/, and FN/.
+TEST_SAVE_VISUALIZATIONS: true
+TEST_RESET_OUTPUT_DIR: true
+
+# Optional gamma correction applied after image load and before YOLO inference.
+TEST_GAMMA_CORRECTION_ENABLED: false
+TEST_GAMMA_CORRECTION_VALUE: 0.6
+
+# Optional tiled inference
+TEST_TILED_INFER_ENABLED: false
+TEST_TILED_MERGE_IOU: 0.7
+TEST_TILED_SELECT_BOX_FROM_MIDDLE: 0.5
+TEST_MAX_OVERLAP_RATIO:
+
+# Optional AdaBN
+TEST_ADABN_ENABLED: false
+TEST_ADABN_IMAGE_DIR:
+TEST_ADABN_BATCH:
+TEST_ADABN_IMGSZ:
+TEST_ADABN_EPOCHS: 1
+TEST_ADABN_MAX_IMAGES:
+TEST_ADABN_MAX_STAGE:
+TEST_ADABN_RESET_STATS: false
+TEST_ADABN_MOMENTUM: null
+TEST_ADABN_FP16: true
+TEST_ADABN_DEBUG: false
+TEST_ADABN_DEBUG_MAX_BATCHES: 1
+TEST_ADABN_DEBUG_SAMPLE_COUNT: 4
+
+# Optional F1-optimized confidence reuse/tuning
+TEST_USE_F1_OPTIMIZED_CONF: true
+TEST_F1_OPTIMIZED_CONF_OFFSET: 0
+TEST_OVERWRITE_F1_OPTIMIZED_CONF: false
+TEST_AUTO_TUNE_F1_CONF_IF_MISSING: false
+TEST_TUNE_SPLIT_DIR:
+TEST_TUNE_SPLIT: val
+TEST_TUNE_TARGET_GT_CLASS: 0
+TEST_TUNE_CONF_MIN: 0.01
+TEST_TUNE_CONF_MAX: 0.99
+TEST_TUNE_CONF_STEP: 0.01
+
+# Optional background-only deployment threshold tuning.
+# Background detections are counted per image by default, or per object when
+# the toggle below is false. The lowest confidence with total FP <= the limit
+# is saved as `deployment_threshold` without replacing an existing `best_conf`.
+# When TEST_ADABN_ENABLED is true, AdaBN runs before this tuning and the same
+# adapted model instance is then used for the actual test inference.
+# Saved thresholds are reused only for matching model/AdaBN/data/settings.
+# Legacy or mismatched metadata requires tuning; use-only mode raises an error.
+# Background images must remain available for the reuse check as well.
+TEST_TUNE_DEPLOYMENT_THRESHOLD: false
+TEST_USE_DEPLOYMENT_THRESHOLD: false
+TEST_OVERWRITE_DEPLOYMENT_THRESHOLD: false
+TEST_DEPLOYMENT_BACKGROUND_IMAGE_DIR:
+TEST_DEPLOYMENT_MAX_FP: 0
+# true: an image with one or more detections counts as FP 1 (default).
+# false: every detected object counts as FP 1.
+TEST_DEPLOYMENT_COUNT_FP_BY_IMAGE: true
+TEST_DEPLOYMENT_TUNE_CLASSES:
+TEST_DEPLOYMENT_TUNE_IMGSZ: 960
+TEST_DEPLOYMENT_TUNE_PRED_IOU: 0.7
+TEST_DEPLOYMENT_TUNE_MAX_DET: 300
+TEST_DEPLOYMENT_TUNE_DEVICE:
+TEST_DEPLOYMENT_TUNE_BATCH: 16
+TEST_DEPLOYMENT_TUNE_FP16: true
+TEST_DEPLOYMENT_TUNE_TILED_INFER_ENABLED: false
+TEST_DEPLOYMENT_TUNE_TILED_MERGE_IOU: 0.7
+TEST_DEPLOYMENT_TUNE_TILED_SELECT_BOX_FROM_MIDDLE: 0.5
+TEST_DEPLOYMENT_TUNE_DISABLE_TQDM: false
+TEST_DEPLOYMENT_TUNE_CONF_MIN: 0.01
+TEST_DEPLOYMENT_TUNE_CONF_MAX: 0.99
+TEST_DEPLOYMENT_TUNE_CONF_STEP: 0.01

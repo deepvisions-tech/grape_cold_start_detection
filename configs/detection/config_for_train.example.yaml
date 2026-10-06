@@ -1,0 +1,71 @@
+names:
+  0: magnesium deficiency
+
+# Runtime
+DEVICE: "0"
+LIMIT_VISIBLE_DEVICE: false
+
+# Model and data paths. Replace these with local paths before running.
+DETECTION_MODEL_PATH: /path/to/pretrained_or_finetune_start.pt
+DATASET_ROOT: /path/to/yolo_style_dataset_or_raw_dataset
+DATASET_ROOTS:
+  - /path/to/dataset_a
+SPLIT_PARENT_DIR: /path/to/output_splits_parent
+SAVED_SPLIT_DIRS:
+  # Leave empty or remove this block to create a new split.
+  # - dir: /path/to/existing/split
+
+RUN_PROJECT_DIR: /path/to/runs
+RUN_NAME: grape_detection_train
+FINAL_BEST_DIR: /path/to/models_final
+CLEAN_RUN_WEIGHTS_AFTER_EXPORT: false
+
+# Training
+EPOCHS: 50
+IMGSZ: 960
+BATCH: 4
+LR0: 0.0001
+OPTIMIZER: adamW
+TRAIN_SEED: 11
+TRAIN_DETERMINISTIC: true
+AMP: true
+CACHE: disk
+CLOSE_MOSAIC: 50
+RECT: false
+WORKERS: 8
+
+# Optional gamma correction applied after image load and before YOLO preprocessing.
+TRAIN_GAMMA_CORRECTION_ENABLED: false
+TRAIN_GAMMA_CORRECTION_VALUE: 0.6
+
+# Split
+TRAIN_RATIO: 0.8
+VAL_RATIO: 0.1
+TEST_RATIO: 0.1
+SPLIT_SEED: 42
+USE_SYMLINK: true
+
+# Optional post-train confidence tuning
+F1_OPTIMIZE_CONF_AFTER_TRAIN: true
+F1_OPTIMIZE_SPLIT: val
+F1_OPTIMIZE_TARGET_GT_CLASS: 0
+F1_OPTIMIZE_TARGET_CLASSES:
+F1_OPTIMIZE_PRED_IOU: 0.7
+F1_OPTIMIZE_MAX_DET: 300
+F1_OPTIMIZE_CONF_MIN: 0.01
+F1_OPTIMIZE_CONF_MAX: 0.99
+F1_OPTIMIZE_CONF_STEP: 0.01
+
+# Optional AdaBN
+TRAIN_ADABN_ENABLED: false
+TRAIN_ADABN_IMAGE_DIR:
+TRAIN_ADABN_BATCH:
+TRAIN_ADABN_IMGSZ:
+TRAIN_ADABN_EPOCHS: 1
+TRAIN_ADABN_MAX_IMAGES:
+TRAIN_ADABN_MAX_STAGE:
+TRAIN_ADABN_RESET_STATS: false
+TRAIN_ADABN_MOMENTUM: null
+TRAIN_ADABN_FP16: true
+TRAIN_ADABN_DEBUG: false
+TRAIN_ADABN_DEBUG_MAX_BATCHES: 1

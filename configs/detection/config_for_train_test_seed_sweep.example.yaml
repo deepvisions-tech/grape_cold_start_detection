@@ -1,0 +1,26 @@
+BASE_TRAIN_CONFIG_PATH: configs/detection/config_for_train.yaml
+BASE_TEST_CONFIG_PATH: configs/detection/config_for_test.yaml
+# TEST_SAVE_VISUALIZATIONS from the base test config is preserved for every seed and test variant.
+
+SEED_SWEEP_MODE: full
+SEED_SWEEP_OUTPUT_DIR: /path/to/seed_sweeps
+SEED_SWEEP_TRAIN_RUN_NAME_PREFIX: grape_seed
+
+SEED_SWEEP_TRAIN_SEEDS:
+  - 11
+  - 42
+  - 409
+
+SEED_SWEEP_MODEL_WEIGHT_SOURCE: best
+SEED_SWEEP_CLEAN_RUN_WEIGHTS_AFTER_EXPORT: false
+
+# Optional shared split
+SEED_SWEEP_REUSE_SHARED_SPLIT: true
+SEED_SWEEP_SHARED_SPLIT_DIR:
+SEED_SWEEP_SHARED_YAML_PATH:
+
+# Optional device override. Leave empty to use base configs.
+SEED_SWEEP_DEVICE:
+
+# Optional finetune/resume source.
+SEED_SWEEP_FINETUNE_RUN_DIR:

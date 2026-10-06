@@ -1,0 +1,69 @@
+# YOLO relabeler r_phi -- training configuration.
+# Manuscript Section 4.3 and Supplementary Table S5.1.
+#
+# Trained on the human-corrected first generation batch, then used to propose
+# boxes on the second batch. Every proposal was reviewed by a human annotator
+# before entering the synthetic dataset.
+#
+# Run with:
+#   grape-detector-train --config configs/reproduction/01_relabeler_train.yaml
+
+names:
+  0: magnesium deficiency
+
+# Runtime
+DEVICE: "0"
+LIMIT_VISIBLE_DEVICE: false
+
+# Paths. Replace with local paths before running.
+DETECTION_MODEL_PATH: /path/to/yolo26x.pt
+DATASET_ROOT: /path/to/human_corrected_first_batch
+DATASET_ROOTS:
+SPLIT_PARENT_DIR: /path/to/output_splits_parent
+SAVED_SPLIT_DIRS:
+
+RUN_PROJECT_DIR: /path/to/runs
+RUN_NAME: grape_relabeler
+FINAL_BEST_DIR: /path/to/models_final
+CLEAN_RUN_WEIGHTS_AFTER_EXPORT: false
+
+# Training. Optimizer and learning rate are left empty so that Ultralytics
+# performs its automatic selection, as in the reported run.
+EPOCHS: 50
+IMGSZ: 960
+BATCH: 8
+LR0:
+OPTIMIZER:
+TRAIN_SEED: 11
+TRAIN_DETERMINISTIC: true
+AMP: true
+CACHE: disk
+CLOSE_MOSAIC: 50
+RECT: false
+WORKERS: 6
+
+TRAIN_GAMMA_CORRECTION_ENABLED: false
+TRAIN_GAMMA_CORRECTION_VALUE: 0.6
+
+# Split. The relabeler used its own internal 0.9/0.1 train/validation split,
+# distinct from the fixed validation sets of the reported detectors.
+TRAIN_RATIO: 0.9
+VAL_RATIO: 0.1
+TEST_RATIO: 0.0
+SPLIT_SEED: 42
+USE_SYMLINK: true
+
+# Validation-tuned confidence. The reported production threshold was 0.40.
+F1_OPTIMIZE_CONF_AFTER_TRAIN: true
+F1_OPTIMIZE_SPLIT: val
+F1_OPTIMIZE_TARGET_GT_CLASS: 0
+F1_OPTIMIZE_TARGET_CLASSES:
+# Inactive in YOLO26 default end-to-end inference (no NMS).
+F1_OPTIMIZE_PRED_IOU: 0.7
+F1_OPTIMIZE_MAX_DET: 300
+F1_OPTIMIZE_CONF_MIN: 0.01
+F1_OPTIMIZE_CONF_MAX: 0.99
+F1_OPTIMIZE_CONF_STEP: 0.01
+
+# AdaBN is not used for the relabeler.
+TRAIN_ADABN_ENABLED: false

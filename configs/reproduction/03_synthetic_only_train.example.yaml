@@ -1,0 +1,86 @@
+# Synthetic-only detector training.
+# Manuscript Section 5.2 (cold-start scenario and the pretraining stage of
+# every synthetic-pretrain+fine-tune scenario) and Section 5.3 (the
+# generation-source ablation).
+#
+# This single recipe covers three reported uses:
+#   1. cold-start (synthetic-only) detector, evaluated with AdaBN;
+#   2. the synthetic pretraining checkpoint that seeds fine-tuning;
+#   3. the generation ablation, by pointing the dataset keys at the
+#      prompt-only generated set instead of S_train.
+#
+# Optimizer and learning rate are left empty so that Ultralytics performs its
+# automatic selection, as in the reported runs.
+#
+# For 15-seed cold-start/pretraining runs, use this file as the training base
+# of 08_seed_sweep_15_seeds.yaml. For the generation-source comparison,
+# use 11_seed_sweep_generation_ablation.yaml (evaluation without AdaBN).
+
+names:
+  0: magnesium deficiency
+
+# Runtime
+DEVICE: "0"
+LIMIT_VISIBLE_DEVICE: false
+
+# Paths. Replace with local paths before running.
+DETECTION_MODEL_PATH: /path/to/yolo26x.pt
+# S_train + V_syn: the 3,016 retained human-verified generated images.
+# For the generation ablation, point these at the prompt-only generated set
+# (2,715 training and 301 validation images).
+DATASET_ROOT: /path/to/synthetic_dataset
+DATASET_ROOTS:
+SPLIT_PARENT_DIR: /path/to/output_splits_parent
+# The reported runs consumed a pre-built split so that all 15 seeds shared the
+# same 2,715/301 source-background-disjoint partition. Point this at that split
+# to reproduce exactly; leave it empty to build a fresh split from the ratios
+# below.
+SAVED_SPLIT_DIRS:
+  # - dir: /path/to/synthetic_split_2715_301
+
+RUN_PROJECT_DIR: /path/to/runs
+RUN_NAME: grape_synthetic_only
+FINAL_BEST_DIR: /path/to/models_final
+CLEAN_RUN_WEIGHTS_AFTER_EXPORT: false
+
+# Training
+EPOCHS: 50
+IMGSZ: 960
+BATCH: 8
+LR0:
+OPTIMIZER:
+# Overridden per run by the seed sweep. 111 is the first of the 15 seeds.
+TRAIN_SEED: 111
+TRAIN_DETERMINISTIC: true
+AMP: true
+CACHE: disk
+CLOSE_MOSAIC: 50
+RECT: false
+WORKERS: 6
+
+TRAIN_GAMMA_CORRECTION_ENABLED: false
+TRAIN_GAMMA_CORRECTION_VALUE: 0.6
+
+# Split. Used only when SAVED_SPLIT_DIRS is empty; the reported corpus was
+# partitioned approximately 9:1 into S_train and V_syn.
+TRAIN_RATIO: 0.9
+VAL_RATIO: 0.1
+TEST_RATIO: 0.0
+SPLIT_SEED: 42
+USE_SYMLINK: true
+
+# Model selection and threshold tuning for the cold-start scenario use V_syn.
+F1_OPTIMIZE_CONF_AFTER_TRAIN: true
+F1_OPTIMIZE_SPLIT: val
+F1_OPTIMIZE_TARGET_GT_CLASS: 0
+F1_OPTIMIZE_TARGET_CLASSES:
+# Inactive in YOLO26 default end-to-end inference (no NMS).
+F1_OPTIMIZE_PRED_IOU: 0.7
+F1_OPTIMIZE_MAX_DET: 300
+F1_OPTIMIZE_CONF_MIN: 0.01
+F1_OPTIMIZE_CONF_MAX: 0.99
+F1_OPTIMIZE_CONF_STEP: 0.01
+
+# AdaBN is applied post hoc at evaluation time, not during training.
+# See 05_evaluate_curated_mix_adabn.example.yaml.
+TRAIN_ADABN_ENABLED: false

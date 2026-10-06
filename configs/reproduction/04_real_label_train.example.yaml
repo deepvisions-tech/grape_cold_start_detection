@@ -1,0 +1,85 @@
+# Real-label detector training.
+# Manuscript Section 5.2: the real-only(k) scenario and the fine-tuning stage
+# of the synthetic-pretrain+low-label-fine-tune(k) scenario.
+#
+# Both stages share this recipe. They differ only in the initial weights:
+#   real-only(k)        -> DETECTION_MODEL_PATH = yolo26x.pt
+#   fine-tune(k)        -> the synthetic checkpoint trained at the same seed,
+#                          supplied by 09_seed_sweep_pretrain_finetune.yaml
+# Use 10_seed_sweep_real_only.yaml for real-only repetition; both sweeps
+# evaluate without AdaBN and select the threshold on the same V_real.
+#
+# Unlike the synthetic recipe, these stages use a fixed AdamW learning rate,
+# which preliminary runs found more stable than automatic selection on the
+# smaller real-label training sets.
+#
+# The real-label budgets R_k (k in {10, 25, 50, 100, 214}, with 5/5/5/10/21
+# negative-only images) are prepared outside this repository; point the dataset
+# keys at the prepared R_k directory and V_real.
+
+names:
+  0: magnesium deficiency
+
+# Runtime
+DEVICE: "0"
+LIMIT_VISIBLE_DEVICE: false
+
+# Paths. Replace with local paths before running.
+# For real-only(k) this is the pretrained YOLO26x checkpoint; for the
+# fine-tuning stage the seed sweep overrides it with the matched synthetic
+# checkpoint.
+DETECTION_MODEL_PATH: /path/to/yolo26x.pt
+DATASET_ROOT: /path/to/real_budget_k
+DATASET_ROOTS:
+SPLIT_PARENT_DIR: /path/to/output_splits_parent
+# R_k is fixed across all 15 seeds at a given k, and V_real (50 positive + 250
+# negative-only images) is fixed across all budgets, so both come from a
+# pre-built split.
+SAVED_SPLIT_DIRS:
+  # - dir: /path/to/real_split_budget_k
+
+RUN_PROJECT_DIR: /path/to/runs
+RUN_NAME: grape_real_only_k214
+FINAL_BEST_DIR: /path/to/models_final
+CLEAN_RUN_WEIGHTS_AFTER_EXPORT: false
+
+# Training
+EPOCHS: 50
+IMGSZ: 960
+BATCH: 8
+LR0: 0.0001
+OPTIMIZER: adamW
+# Overridden per run by the seed sweep.
+TRAIN_SEED: 111
+TRAIN_DETERMINISTIC: true
+AMP: true
+CACHE: disk
+CLOSE_MOSAIC: 50
+RECT: false
+WORKERS: 6
+
+TRAIN_GAMMA_CORRECTION_ENABLED: false
+TRAIN_GAMMA_CORRECTION_VALUE: 0.6
+
+# Used only when SAVED_SPLIT_DIRS is empty.
+TRAIN_RATIO: 0.9
+VAL_RATIO: 0.1
+TEST_RATIO: 0.0
+SPLIT_SEED: 42
+USE_SYMLINK: true
+
+# Model selection and threshold tuning for every real-label scenario use
+# V_real, fixed across all budgets k.
+F1_OPTIMIZE_CONF_AFTER_TRAIN: true
+F1_OPTIMIZE_SPLIT: val
+F1_OPTIMIZE_TARGET_GT_CLASS: 0
+F1_OPTIMIZE_TARGET_CLASSES:
+# Inactive in YOLO26 default end-to-end inference (no NMS).
+F1_OPTIMIZE_PRED_IOU: 0.7
+F1_OPTIMIZE_MAX_DET: 300
+F1_OPTIMIZE_CONF_MIN: 0.01
+F1_OPTIMIZE_CONF_MAX: 0.99
+F1_OPTIMIZE_CONF_STEP: 0.01
+
+# AdaBN was applied only to the synthetic-only detector.
+TRAIN_ADABN_ENABLED: false
