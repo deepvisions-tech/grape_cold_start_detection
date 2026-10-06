@@ -14,6 +14,9 @@ grapevine leaves. It provides:
 - Prediction export as a YOLO-format dataset for human review.
 - Multi-seed experiments, AdaBN, confidence-threshold tuning, and tiled inference.
 
+For SAM3–DINOv2 automatic labeling, result tables, and statistical reproduction,
+see the [companion automatic labeling repository](https://github.com/deepvisions-tech/grape_cold_start_auto_labeling).
+
 ## Installation
 
 Use Python 3.11 or newer and install PyTorch and torchvision for your platform.
@@ -67,13 +70,6 @@ per-image records. Review predicted labels before using them for training.
 [Reproduction configurations](configs/reproduction/README.md) cover the
 relabeler, synthetic-only training, real-only training, low-label fine-tuning,
 and evaluation settings used in the paper.
-
-## Paper results
-
-The companion repository, `grape_cold_start_detection`, provides SAM3–DINOv2
-label recovery, anonymous numerical inputs, result tables, and statistical
-reproduction code. Its `reproduction/README.md` provides CPU commands for
-regenerating the result tables.
 
 ## License
 
